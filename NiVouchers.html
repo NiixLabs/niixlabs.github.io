@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Documentação do plugin NiVouchers da NiixLabs. Veja comandos, opções e configurações.">
     <title>NiixLabs - Docs</title>
     <style>
         * {
@@ -193,10 +194,11 @@
                 <li><code>Name</code> - Nome do item no jogo.</li>
                 <li><code>Lore</code> - Descrição exibida no item.</li>
                 <li><code>Consumable</code> - Define se o item será consumido ao usar.</li>
-                <li><code>EnchantmentGlint</code> - Adiciona brilho encantado.</li>
-                <li><code>ItemModel</code> - Caso deseja aplicar uma textura ao item.</li>
-                <li><code>Trigger</code> - Ações em que o item será ativado.</li>
-                <li><code>Permission</code> - Permissão necessária para usá-lo.</li>
+                <li><code>Trigger</code> - Ações em que o item será ativado. <code>R_CLICK, L_CLICK, BOTH</code></li>
+                <li><code>ItemFlags</code> - Alterar Flags dos Items. <code>HIDE_ADDITIONAL_TOOLTIP, HIDE_ATTRIBUTES</code></li>
+                <li><code>EnchantmentGlint</code> - Adiciona brilho encantado. (Opcional)</li>
+                <li><code>CustomModelData</code> - Caso deseja aplicar uma textura ao item. (Opcional)</li>
+                <li><code>Permission</code> - Permissão necessária para usá-lo. (Opcional)</li>
             </ul>
         </div>
         <div class="section">
@@ -227,9 +229,9 @@
       - ''
     Consumable: true # Optional ( Default true )
     EnchantmentGlint: true # Optional (Default false)
-    ItemModel: 1001 # Optional ( Default none )
     Trigger: BOTH # Trigger Actions: [L_CLICK, R_CLICK, BOTH]
     Permission: none # Permissão requerida para poder utilizar o voucher
+    ItemFlags: [] # Esconder flags do item
     Actions:
       - "actionbar@&dBem vindo(a) ao Spawn!"
       - "title@&c-1 &aScroll de &cTeleporte"
