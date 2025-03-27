@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Documentação do plugin NiVouchers da NiixLabs. Veja comandos, opções e configurações.">
+    <title>NiixLabs - Docs</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #23272A;
+            color: #FFFFFF;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            background: #2C2F33;
+            padding: 15px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #7289DA;
+        }
+        .sidebar {
+            direction: rtl;
+            width: 230px;
+            background: #2C2F33;
+            padding: 18px;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            overflow-y: auto;
+        }
+        .sidebar h2 {
+            direction: ltr;
+            color: #7289DA;
+            margin-bottom: 20px;
+        }
+        .sidebar ul {
+            direction: ltr;
+            list-style: none;
+        }
+        .sidebar ul li {
+            margin: 4px 0;
+        }
+        .sidebar ul li a {
+            text-decoration: none;
+            color: #ffffff;
+            display: block;
+            padding: 5px;
+            background: #40444B;
+            border-radius: 4px;
+            transition: 0.3s;
+            font-weight: bold;
+        }
+        .sidebar ul li .selected {
+            text-decoration: none;
+            color: #ffffff;
+            display: block;
+            padding: 5px;
+            background: #5d636e;
+            border-radius: 4px;
+            transition: 0.3s;
+            font-weight: bold;
+        }
+        .sidebar ul li a:hover {
+            background: #7289DA;
+        }
+        .container {
+            margin-left: 240px;
+            padding: 20px;
+            width: calc(100% - 270px);
+            overflow: hidden;
+        }
+        .section {
+            background: #2C2F33;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        h1, h2 {
+            color: #7289DA;
+        }
+        pre {
+            background: #40444B;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 14px;
+        }
+        code {
+            color: #50FA7B;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        ul li {
+            background: #40444B;
+            margin: 5px 0;
+            padding: 8px;
+            border-radius: 5px;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            .container {
+                margin-left: 0;
+                width: 100%;
+            }
+            .header {
+                font-size: 20px;
+            }
+            .sidebar ul li a {
+                padding: 10px;
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                font-size: 18px;
+            }
+            .sidebar h2 {
+                font-size: 18px;
+            }
+            .sidebar ul li a {
+                font-size: 12px;
+            }
+            .container {
+                padding: 15px;
+            }
+            .section {
+                padding: 15px;
+            }
+            pre {
+                font-size: 12px;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">📜 NiixLabs - NiFly</div>
+    <div class="sidebar">
+        <h2>🔰 NiixLabs</h2>
+        <ul>
+            <li><a href="#" class="selected">NiFly</a></li>
+            <li><a href="/NiVouchers">NiVouchers</a></li>
+        </ul>
+    </div>
+    <div class="container">
+        <div class="section">
+            <h2>⚙️ Comandos</h2>
+            <ul>
+                <li><code>/nifly time [add/remove] {player} {tempo}</code> - Adicione tempo de voo a um jogador específico.</li>
+                <li><code>/nifly toggle {player}</code> - Ativa/Desativa seu Fly.</li>
+                <li><code>/nifly help</code> - Veja o menu de comandos do plugin.</li>
+                <li><code>/nifly reload</code> - Recarregue a configuração do plugin.</li>
+            </ul>
+        </div>
+        <div class="section">
+            <h2>⏱ Sistema de Tempo</h2>
+            <p>Para definir o tempo, use abreviações de tempo no argumento do comando:</p>
+            <ul>
+                <li><code>w</code> - Define o tempo em Semanas</li>
+                <li><code>d</code> - Define o tempo em Dias</li>
+                <li><code>h</code> - Define o tempo em Horas</li>
+                <li><code>m</code> - Define o tempo em Minutos</li>
+                <li><code>s</code> - Define o tempo em Segundos</li>
+            </ul>
+            <p>Exemplo de uso: <code>5h</code> - Define o tempo em 5 Horas</p>
+        </div>
+        <div class="section">
+            <h2>☕ Placeholders</h2>
+            <p>Abaixo estão as placeholders do plugin:</p>
+            <ul>
+                <li><code>%nifly_flytime%</code> - Tempo de voo restante. (Seguindo o Sistema de Tempo) <code>"$s$f:e"</code></li>
+                <li><code>%nifly_isenabled%</code> - Se o voo está ativado ou não. <code>"&aON:&cOFF"</code></li>
+                <li><code>%nifly_isflying%</code> - Se a pessoa está voando ou não. <code>"§aYes:§cNo"</code></li>
+            </ul>
+        </div>
+        <div class="section">
+            <h2>🚧 WorldGuard</h2>
+            <p>NiFly Adiciona uma nova flag no worldguard</p>
+            <ul>
+                <li><code>allow-fly</code> - Se o voo é permitido na região <code>Allow/Deny</code></li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>📌 Config Default</h2>
+            <p>Configuração Padrão do Plugin (Primeira Instalação):</p>
+            <pre><code>MySQL:
+  Enabled: false
+  Debug: false
+  Database:
+    User_Name: UserName
+    User_Password: UserPassword
+    Name: DataBaseName
+    TablePrefix: nifly_
+  Server:
+    SSL: true
+    Port: 3306
+    Address: localhost
+    allowPublicKeyRetrieval: true
+
+Config:
+  Format_ticklist: # Converts inputs to multiply (Example 5m = 5 * 1200ticks)
+    - "s:20" # Second
+    - "m:1200" # Minute
+    - "h:72000" # Hour
+    - "d:1728000" # Day
+    # - "w:12096000" # Week Example [/time add SrNiix_ 1w]
+  Placeholders:
+    Flytime_format: "$s$f:e" # 0d 0h 0m and 0s | (format_ticklist is used here too)
+    Fly_IsEnabled: "&aON:&cOFF" # %nifly_isenabled%
+    Fly_IsFlying: "§aYes:§cNo" # %nifly_isflying%
+  Actionbar_text: "&aVoando... &eTempo Restante: &c%nifly_flytime%"
+  Messages:
+    FlyToggleError: "&c&lVocê não tem tempo de voo restante!"
+    FlyToggledOnBypass: "&a> Voo &eAtivado&a!"
+    FlyToggledOffBypass: "&a> Voo &cDesativado&a!"
+    FlyToggledOn: "&a> Voo &eAtivado&a! &eVocê tem &c%nifly_flytime% &eRestantes"
+    FlyToggledOff: "&a> Voo &cDesativado&a! &eVocê tem &c%nifly_flytime% &eRestantes"
+    CantFlyInThisRegion: "&c> Desculpe, Mas você não pode voar aqui!"</code></pre>
+        </div>
+    </div>
+</body>
+</html>
