@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Morse Trainer</title>
+  <style>
+    :root {
+      --primary: #e3f2fd;
+      --accent: #64b5f6;
+      --bg: #ffffff;
+      --text: #0d47a1;
+      --card: #bbdefb;
+      --success: #4caf50;
+      --error: #f44336;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem;
+    }
+
+    h1 {
+      margin: 1rem 0;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 500px;
+      background: var(--primary);
+      padding: 1rem;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+
+    .level-info {
+      text-align: center;
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
+
+    input, button {
+      width: 100%;
+      padding: 0.6rem;
+      margin-bottom: 0.8rem;
+      border-radius: 6px;
+      border: 1px solid var(--accent);
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: var(--accent);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #42a5f5;
+    }
+
+    #feedback {
+      text-align: center;
+      font-size: 1.2rem;
+      margin-top: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .success {
+      color: var(--success);
+      animation: pulse 0.5s ease;
+    }
+
+    .error {
+      color: var(--error);
+      animation: shake 0.5s ease;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
+      100% { transform: translateX(0); }
+    }
+  </style>
+</head>
+<body>
+  <h1>🧠 Morse Trainer</h1>
+  <div class="container">
+    <div class="level-info">
+      Nível: <span id="level">1</span> | XP: <span id="xp">0</span>
+      <button onclick="resetProgress()">🔄 Resetar</button>
+    </div>
+
+    <div class="section">
+      <label for="wpm">WPM Base:</label>
+      <input id="wpm" type="number" value="15" onchange="updateGaps()">
+
+      <label for="gap">Espaço Base (ms):</label>
+      <input id="gap" type="number" value="300" disabled>
+
+      <label for="letterGap">Tempo entre letras (ms):</label>
+      <input id="letterGap" type="number" value="300" disabled>
+
+      <button onclick="startTraining()">Começar</button>
+    </div>
+
+    <div class="section">
+      <label for="userInput">Sua resposta:</label>
+      <input id="userInput" disabled>
+      <button id="checkBtn" onclick="checkAnswer()" disabled>Verificar</button>
+      <button onclick="replaySequence()">Ouvir de novo</button>
+      <div id="feedback"></div>
+    </div>
+  </div>
+
+  <script>
+    const morseCode = {
+      A: ".-", B: "-...", C: "-.-.", D: "-..", E: ".", F: "..-.",
+      G: "--.", H: "....", I: "..", J: ".---", K: "-.-", L: ".-..",
+      M: "--", N: "-.", O: "---", P: ".--.", Q: "--.-", R: ".-.",
+      S: "...", T: "-", U: "..-", V: "...-", W: ".--", X: "-..-",
+      Y: "-.--", Z: "--.."
+    };
+
+    const letters = Object.keys(morseCode);
+    let selected = letters;
+    let currentSequence = '';
+    let xp = parseInt(localStorage.getItem('morse_xp')) || 0;
+    let level = parseInt(localStorage.getItem('morse_level')) || 1;
+
+    document.getElementById("xp").textContent = xp;
+    document.getElementById("level").textContent = level;
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+    function playTone(duration, freq) {
+      const oscillator = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      oscillator.frequency.value = freq;
+      oscillator.connect(gain);
+      gain.connect(audioCtx.destination);
+      oscillator.start();
+      oscillator.stop(audioCtx.currentTime + duration / 1000);
+    }
+
+    function updateGaps() {
+      const baseWpm = +document.getElementById("wpm").value;
+      const wpm = baseWpm + Math.floor(level / 10);
+      const unit = 1200 / wpm;
+      const gap = unit * 3; // inter-character gap
+      document.getElementById("gap").value = Math.round(unit);
+      document.getElementById("letterGap").value = Math.round(gap);
+    }
+
+    async function playMorseSequence(sequence) {
+      const unit = +document.getElementById("gap").value;
+      const letterGap = +document.getElementById("letterGap").value;
+      const pitch = 600;
+
+      for (let ch of sequence) {
+        const code = morseCode[ch];
+        for (let symbol of code) {
+          const duration = symbol === '.' ? unit : unit * 3;
+          playTone(duration, pitch);
+          await sleep(duration);
+          await sleep(unit);
+        }
+        await sleep(letterGap);
+      }
+    }
+
+    function generateSequence() {
+      const length = Math.min(2 + Math.floor(level / 5), 10);
+      let result = '';
+      for (let i = 0; i < length; i++) {
+        result += selected[Math.floor(Math.random() * selected.length)];
+      }
+      return result;
+    }
+
+    async function startTraining() {
+      updateGaps();
+      currentSequence = generateSequence();
+      document.getElementById("userInput").value = '';
+      document.getElementById("userInput").disabled = false;
+      document.getElementById("checkBtn").disabled = false;
+      document.getElementById("userInput").focus();
+      document.getElementById("feedback").textContent = '';
+
+      await playMorseSequence(currentSequence);
+    }
+
+    function replaySequence() {
+      playMorseSequence(currentSequence);
+    }
+
+    function updateXP(points) {
+      xp += points;
+      const nextLevelXP = level * 10;
+      if (xp >= nextLevelXP && level < 200) {
+        xp -= nextLevelXP;
+        level++;
+      }
+      if (xp < 0) {
+        if (level > 1) {
+          level--;
+          xp = Math.floor(level * 10 * 0.8);
+        } else {
+          xp = 0;
+        }
+      }
+      localStorage.setItem('morse_xp', xp);
+      localStorage.setItem('morse_level', level);
+      document.getElementById("xp").textContent = xp;
+      document.getElementById("level").textContent = level;
+    }
+
+    function checkAnswer() {
+      const input = document.getElementById("userInput").value.toUpperCase();
+      const feedback = document.getElementById("feedback");
+
+      if (input === currentSequence) {
+        feedback.textContent = "✅ Correto!";
+        feedback.className = 'success';
+        updateXP(5);
+      } else {
+        feedback.textContent = `❌ Era: ${currentSequence}`;
+        feedback.className = 'error';
+        updateXP(-3);
+      }
+      setTimeout(() => startTraining(), 1500);
+    }
+
+    function resetProgress() {
+      if (confirm("Tem certeza que deseja resetar seu progresso?")) {
+        xp = 0;
+        level = 1;
+        localStorage.setItem('morse_xp', xp);
+        localStorage.setItem('morse_level', level);
+        document.getElementById("xp").textContent = xp;
+        document.getElementById("level").textContent = level;
+      }
+    }
+
+    document.getElementById("userInput").addEventListener("keydown", e => {
+      if (e.key === "Enter" && !document.getElementById("checkBtn").disabled) {
+        checkAnswer();
+      }
+    });
+  </script>
+</body>
+</html>
